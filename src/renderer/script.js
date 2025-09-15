@@ -8,13 +8,19 @@ class ImageGeneratorApp {
         };
         
         this.conversationHistory = [];
+        this.sessions = [];
+        this.currentSessionId = null;
+        this.supportedModels = {};
         this.init();
     }
 
     async init() {
         this.bindEvents();
         await this.loadSettings();
+        this.loadSessions();
+        this.loadSupportedModels();
         this.updateParameterDisplays();
+        this.createNewSession();
     }
 
     bindEvents() {
@@ -70,6 +76,37 @@ class ImageGeneratorApp {
             if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
                 this.generateImage();
             }
+        });
+
+        // New session and history buttons
+        document.getElementById('new-session-btn').addEventListener('click', () => {
+            this.createNewSession();
+        });
+
+        document.getElementById('sessions-btn').addEventListener('click', () => {
+            this.showSessionsModal();
+        });
+
+        document.getElementById('back-btn').addEventListener('click', () => {
+            this.showWelcomeMessage();
+        });
+
+        // Sessions modal
+        document.getElementById('close-sessions').addEventListener('click', () => {
+            this.hideSessionsModal();
+        });
+
+        document.getElementById('clear-sessions').addEventListener('click', () => {
+            this.clearAllSessions();
+        });
+
+        // Model info button
+        document.getElementById('model-info-btn').addEventListener('click', () => {
+            this.showModelInfoModal();
+        });
+
+        document.getElementById('close-model-info').addEventListener('click', () => {
+            this.hideModelInfoModal();
         });
 
         // Parameter range inputs
@@ -160,6 +197,157 @@ class ImageGeneratorApp {
         document.getElementById('num-images-value').textContent = this.currentParameters.numImages;
     }
 
+    loadSupportedModels() {
+        this.supportedModels = {
+            'fal-nano-banana': {
+                name: 'Fal.ai Nano Banana (默认)',
+                description: '快速生成，适合快速预览',
+                features: ['快速生成', '低成本', '适合预览']
+            },
+            'flux-pro-ultra': {
+                name: 'FLUX1.1 [pro] ultra',
+                description: '专业级图像质量，支持2K分辨率',
+                features: ['2K分辨率', '专业级质量', '高真实感']
+            },
+            'flux-dev': {
+                name: 'FLUX.1 [dev]',
+                description: '12B参数模型，高质量图像生成',
+                features: ['12B参数', '高质量', '商用许可']
+            },
+            'recraft-v3': {
+                name: 'Recraft V3',
+                description: '支持长文本、矢量艺术和品牌风格',
+                features: ['长文本支持', '矢量艺术', '品牌风格', '排版优秀']
+            },
+            'ideogram-v2': {
+                name: 'Ideogram V2',
+                description: '优秀的排版处理和现实感输出',
+                features: ['优秀排版', '现实感强', '商业创作']
+            },
+            'stable-diffusion-35': {
+                name: 'Stable Diffusion 3.5 Large',
+                description: '改进的图像质量和复杂提示理解',
+                features: ['复杂提示理解', '改进质量', '资源效率']
+            }
+        };
+    }
+
+    loadSessions() {
+        const savedSessions = localStorage.getItem('ai-image-sessions');
+        if (savedSessions) {
+            this.sessions = JSON.parse(savedSessions);
+        }
+    }
+
+    saveSessions() {
+        localStorage.setItem('ai-image-sessions', JSON.stringify(this.sessions));
+    }
+
+    createNewSession() {
+        const sessionId = 'session_' + Date.now();
+        const newSession = {
+            id: sessionId,
+            title: '新对话',
+            messages: [],
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+        
+        this.sessions.unshift(newSession);
+        this.currentSessionId = sessionId;
+        this.conversationHistory = [];
+        
+        this.showWelcomeMessage();
+        this.saveSessions();
+        this.updateBackButton();
+    }
+
+    loadSession(sessionId) {
+        const session = this.sessions.find(s => s.id === sessionId);
+        if (session) {
+            this.currentSessionId = sessionId;
+            this.conversationHistory = session.messages;
+            this.renderConversation();
+            this.updateBackButton();
+        }
+    }
+
+    updateCurrentSession() {
+        if (this.currentSessionId) {
+            const session = this.sessions.find(s => s.id === this.currentSessionId);
+            if (session) {
+                session.messages = [...this.conversationHistory];
+                session.updatedAt = new Date();
+                
+                // Update title based on first user message
+                if (this.conversationHistory.length > 0) {
+                    const firstUserMessage = this.conversationHistory.find(m => m.role === 'user');
+                    if (firstUserMessage) {
+                        session.title = firstUserMessage.content.substring(0, 30) + (firstUserMessage.content.length > 30 ? '...' : '');
+                    }
+                }
+                
+                this.saveSessions();
+            }
+        }
+    }
+
+    updateBackButton() {
+        const backBtn = document.getElementById('back-btn');
+        if (this.conversationHistory.length > 0) {
+            backBtn.style.display = 'block';
+        } else {
+            backBtn.style.display = 'none';
+        }
+    }
+
+    showWelcomeMessage() {
+        const messagesContainer = document.getElementById('chat-messages');
+        messagesContainer.innerHTML = `
+            <div class="welcome-message">
+                <h3>欢迎使用 AI 图像生成器！</h3>
+                <p>在下方输入您的图像描述，我将为您生成精美的图片。您可以：</p>
+                <ul>
+                    <li>描述您想要的图像内容</li>
+                    <li>进行多轮对话来完善描述</li>
+                    <li>调整生成参数</li>
+                    <li>选择不同的AI模型</li>
+                </ul>
+            </div>
+        `;
+        this.conversationHistory = [];
+        this.updateBackButton();
+    }
+
+    renderConversation() {
+        const messagesContainer = document.getElementById('chat-messages');
+        messagesContainer.innerHTML = '';
+        
+        if (this.conversationHistory.length === 0) {
+            this.showWelcomeMessage();
+            return;
+        }
+
+        this.conversationHistory.forEach(message => {
+            if (message.role === 'user') {
+                this.addMessage('user', message.content, false);
+            } else if (message.role === 'assistant') {
+                if (message.images) {
+                    this.addGeneratedImages({
+                        images: message.images,
+                        prompt: message.content
+                    }, false);
+                } else {
+                    this.addMessage('assistant', message.content, false);
+                }
+            } else if (message.role === 'system') {
+                this.addMessage('system', message.content, false);
+            }
+        });
+        
+        this.updateBackButton();
+    }
+
     async generateImage() {
         const prompt = document.getElementById('prompt-input').value.trim();
         if (!prompt) {
@@ -185,6 +373,9 @@ class ImageGeneratorApp {
             content: prompt,
             timestamp: new Date()
         });
+        
+        // Update current session
+        this.updateCurrentSession();
 
         // Clear input
         document.getElementById('prompt-input').value = '';
@@ -215,6 +406,9 @@ class ImageGeneratorApp {
                     images: result.images,
                     timestamp: new Date()
                 });
+                
+                // Update current session
+                this.updateCurrentSession();
             } else {
                 this.addMessage('system', '图像生成失败: ' + (result.error || '未知错误'));
             }
@@ -228,7 +422,7 @@ class ImageGeneratorApp {
         }
     }
 
-    addMessage(type, content) {
+    addMessage(type, content, shouldScroll = true) {
         const messagesContainer = document.getElementById('chat-messages');
         
         // Remove welcome message if it exists
@@ -242,10 +436,15 @@ class ImageGeneratorApp {
         messageDiv.textContent = content;
         
         messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        if (shouldScroll) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        this.updateBackButton();
     }
 
-    addGeneratedImages(result) {
+    addGeneratedImages(result, shouldScroll = true) {
         const messagesContainer = document.getElementById('chat-messages');
         
         const messageDiv = document.createElement('div');
@@ -267,18 +466,38 @@ class ImageGeneratorApp {
             img.alt = `Generated image ${index + 1}`;
             img.loading = 'lazy';
             
+            // Add image actions
+            const imageActions = document.createElement('div');
+            imageActions.className = 'image-actions';
+            
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-image-btn';
+            copyBtn.textContent = '📋 复制';
+            copyBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.copyImageToClipboard(image.url);
+            });
+            
+            imageActions.appendChild(copyBtn);
+            
             // Add click to view full size
             img.addEventListener('click', () => {
                 this.showImageFullSize(image.url);
             });
             
             imageContainer.appendChild(img);
+            imageContainer.appendChild(imageActions);
             imagesGrid.appendChild(imageContainer);
         });
         
         messageDiv.appendChild(imagesGrid);
         messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        if (shouldScroll) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        this.updateBackButton();
     }
 
     showImageFullSize(imageUrl) {
@@ -338,6 +557,114 @@ class ImageGeneratorApp {
 
     hideLoading() {
         document.getElementById('loading-overlay').style.display = 'none';
+    }
+
+    async copyImageToClipboard(imageUrl) {
+        try {
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            await navigator.clipboard.write([
+                new ClipboardItem({
+                    [blob.type]: blob
+                })
+            ]);
+            this.addMessage('system', '图片已复制到剪贴板');
+        } catch (error) {
+            console.error('Copy failed:', error);
+            this.addMessage('system', '复制失败，请手动保存图片');
+        }
+    }
+
+    showSessionsModal() {
+        const modal = document.getElementById('sessions-modal');
+        const sessionsList = document.getElementById('sessions-list');
+        
+        if (this.sessions.length === 0) {
+            sessionsList.innerHTML = `
+                <div class="empty-sessions">
+                    <div class="empty-sessions-icon">📝</div>
+                    <p>暂无历史会话</p>
+                    <p>开始新的对话来创建会话记录</p>
+                </div>
+            `;
+        } else {
+            sessionsList.innerHTML = '';
+            this.sessions.forEach(session => {
+                const sessionItem = document.createElement('div');
+                sessionItem.className = 'session-item';
+                if (session.id === this.currentSessionId) {
+                    sessionItem.classList.add('active');
+                }
+                
+                const preview = session.messages.length > 0 
+                    ? session.messages[0].content.substring(0, 100) + '...'
+                    : '空会话';
+                
+                sessionItem.innerHTML = `
+                    <div class="session-title">${session.title}</div>
+                    <div class="session-preview">${preview}</div>
+                    <div class="session-meta">
+                        <span class="session-date">${new Date(session.createdAt).toLocaleDateString()}</span>
+                        <span class="session-count">${session.messages.length} 条消息</span>
+                    </div>
+                `;
+                
+                sessionItem.addEventListener('click', () => {
+                    this.loadSession(session.id);
+                    this.hideSessionsModal();
+                });
+                
+                sessionsList.appendChild(sessionItem);
+            });
+        }
+        
+        modal.style.display = 'block';
+    }
+
+    hideSessionsModal() {
+        document.getElementById('sessions-modal').style.display = 'none';
+    }
+
+    clearAllSessions() {
+        if (confirm('确定要清空所有历史会话吗？此操作不可撤销。')) {
+            this.sessions = [];
+            this.saveSessions();
+            this.hideSessionsModal();
+            this.createNewSession();
+        }
+    }
+
+    showModelInfoModal() {
+        const modal = document.getElementById('model-info-modal');
+        const content = document.getElementById('model-info-content');
+        const selectedModel = document.getElementById('model-select').value;
+        const modelInfo = this.supportedModels[selectedModel];
+        
+        if (modelInfo) {
+            content.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <h3 style="color: #1f2937; margin-bottom: 0.5rem;">${modelInfo.name}</h3>
+                    <p style="color: #6b7280; margin-bottom: 1rem;">${modelInfo.description}</p>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <h4 style="color: #374151; margin-bottom: 0.5rem;">特性：</h4>
+                    <ul style="color: #6b7280; padding-left: 1.5rem;">
+                        ${modelInfo.features.map(feature => `<li style="margin-bottom: 0.25rem;">${feature}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; font-size: 0.9rem; color: #6b7280;">
+                    <strong>提示：</strong> 不同模型有不同的特点和成本，请根据需要选择合适的模型。
+                </div>
+            `;
+        }
+        
+        modal.style.display = 'block';
+    }
+
+    hideModelInfoModal() {
+        document.getElementById('model-info-modal').style.display = 'none';
     }
 }
 

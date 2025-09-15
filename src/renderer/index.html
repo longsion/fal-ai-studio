@@ -10,8 +10,15 @@
     <div id="app">
         <!-- Header -->
         <header class="header">
-            <h1>AI 图像生成器</h1>
-            <button id="settings-btn" class="settings-btn">⚙️ 设置</button>
+            <div class="header-left">
+                <button id="back-btn" class="back-btn" style="display: none;">← 返回</button>
+                <h1>AI 图像生成器</h1>
+            </div>
+            <div class="header-right">
+                <button id="new-session-btn" class="new-session-btn">+ 新对话</button>
+                <button id="sessions-btn" class="sessions-btn">📝 历史</button>
+                <button id="settings-btn" class="settings-btn">⚙️ 设置</button>
+            </div>
         </header>
 
         <!-- Main Content -->
@@ -36,8 +43,14 @@
                     <div class="model-selector">
                         <label for="model-select">模型:</label>
                         <select id="model-select">
-                            <option value="fal-nano-banana">Fal.ai Nano Banana</option>
+                            <option value="fal-nano-banana">Fal.ai Nano Banana (默认)</option>
+                            <option value="flux-pro-ultra">FLUX1.1 [pro] ultra - 专业级2K质量</option>
+                            <option value="flux-dev">FLUX.1 [dev] - 12B参数高质量</option>
+                            <option value="recraft-v3">Recraft V3 - 长文本/矢量艺术</option>
+                            <option value="ideogram-v2">Ideogram V2 - 优秀排版</option>
+                            <option value="stable-diffusion-35">Stable Diffusion 3.5 - 复杂提示</option>
                         </select>
+                        <button id="model-info-btn" class="model-info-btn">ℹ️</button>
                     </div>
                     
                     <div class="input-row">
@@ -114,6 +127,43 @@
                 <div class="modal-footer">
                     <button id="apply-parameters" class="save-btn">应用</button>
                     <button id="cancel-parameters" class="cancel-btn">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sessions Modal -->
+        <div id="sessions-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>历史会话</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="sessions-list" class="sessions-list">
+                        <!-- Sessions will be populated here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="clear-sessions" class="cancel-btn">清空历史</button>
+                    <button id="close-sessions" class="save-btn">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Info Modal -->
+        <div id="model-info-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>模型信息</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="model-info-content">
+                        <!-- Model info will be populated here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="close-model-info" class="save-btn">关闭</button>
                 </div>
             </div>
         </div>

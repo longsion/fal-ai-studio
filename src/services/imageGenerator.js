@@ -4,9 +4,40 @@ class ImageGenerator {
   constructor() {
     this.supportedModels = {
       'fal-nano-banana': {
-        name: 'Fal.ai Nano Banana',
+        name: 'Fal.ai Nano Banana (默认)',
         endpoint: 'https://fal.run/fal-ai/flux/schnell',
-        provider: 'fal'
+        provider: 'fal',
+        description: '快速生成，适合快速预览'
+      },
+      'flux-pro-ultra': {
+        name: 'FLUX1.1 [pro] ultra',
+        endpoint: 'https://fal.run/fal-ai/flux-pro/v1.1-ultra',
+        provider: 'fal',
+        description: '专业级图像质量，支持2K分辨率'
+      },
+      'flux-dev': {
+        name: 'FLUX.1 [dev]',
+        endpoint: 'https://fal.run/fal-ai/flux/dev',
+        provider: 'fal',
+        description: '12B参数模型，高质量图像生成'
+      },
+      'recraft-v3': {
+        name: 'Recraft V3',
+        endpoint: 'https://fal.run/fal-ai/recraft-v3',
+        provider: 'fal',
+        description: '支持长文本、矢量艺术和品牌风格'
+      },
+      'ideogram-v2': {
+        name: 'Ideogram V2',
+        endpoint: 'https://fal.run/fal-ai/ideogram-v2',
+        provider: 'fal',
+        description: '优秀的排版处理和现实感输出'
+      },
+      'stable-diffusion-35': {
+        name: 'Stable Diffusion 3.5 Large',
+        endpoint: 'https://fal.run/fal-ai/stable-diffusion-v3-5-large',
+        provider: 'fal',
+        description: '改进的图像质量和复杂提示理解'
       }
     };
   }
