@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#764ba2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f093fb;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#gradient1)" stroke="none"/>
+  
+  <!-- Inner circle -->
+  <circle cx="256" cy="256" r="180" fill="rgba(255,255,255,0.1)" stroke="none"/>
+  
+  <!-- Camera/Image icon -->
+  <g transform="translate(256,256)">
+    <!-- Camera body -->
+    <rect x="-80" y="-40" width="160" height="80" rx="12" ry="12" fill="white" opacity="0.9"/>
+    
+    <!-- Camera lens -->
+    <circle cx="0" cy="0" r="35" fill="url(#gradient2)" stroke="white" stroke-width="3"/>
+    <circle cx="0" cy="0" r="25" fill="rgba(255,255,255,0.3)"/>
+    
+    <!-- Flash -->
+    <rect x="40" y="-35" width="15" height="10" rx="2" ry="2" fill="white"/>
+    
+    <!-- Viewfinder -->
+    <rect x="-60" y="-35" width="20" height="8" rx="2" ry="2" fill="rgba(255,255,255,0.7)"/>
+    
+    <!-- AI sparkles -->
+    <g opacity="0.8">
+      <circle cx="-60" cy="-80" r="3" fill="#ffd700"/>
+      <circle cx="70" cy="-70" r="2" fill="#ffd700"/>
+      <circle cx="-70" cy="70" r="2.5" fill="#ffd700"/>
+      <circle cx="60" cy="80" r="2" fill="#ffd700"/>
+      
+      <!-- Sparkle lines -->
+      <path d="M-60,-80 L-58,-85 M-60,-80 L-55,-78 M-60,-80 L-62,-75 M-60,-80 L-65,-82" stroke="#ffd700" stroke-width="1" opacity="0.8"/>
+      <path d="M70,-70 L72,-73 M70,-70 L73,-68 M70,-70 L68,-67 M70,-70 L67,-72" stroke="#ffd700" stroke-width="1" opacity="0.8"/>
+    </g>
+  </g>
+  
+  <!-- App name text -->
+  <text x="256" y="420" font-family="Arial, sans-serif" font-size="32" font-weight="bold" text-anchor="middle" fill="white" opacity="0.9">Fal.ai Studio</text>
+</svg>
