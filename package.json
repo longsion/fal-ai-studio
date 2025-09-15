@@ -48,10 +48,8 @@
         "filter": ["**/*"]
       }
     ],
-    "icon": "assets/icons/icon.svg",
     "mac": {
       "category": "public.app-category.graphics-design",
-      "icon": "assets/icons/icon.svg",
       "target": [
         {
           "target": "dmg",
@@ -60,12 +58,10 @@
       ]
     },
     "win": {
-      "target": "nsis",
-      "icon": "assets/icons/icon.svg"
+      "target": "nsis"
     },
     "linux": {
-      "target": "AppImage",
-      "icon": "assets/icons/icon.svg"
+      "target": "AppImage"
     },
     "nsis": {
       "oneClick": false,
@@ -75,7 +71,6 @@
     },
     "dmg": {
       "title": "Fal.ai Studio ${version}",
-      "icon": "assets/icons/icon.svg",
       "background": null,
       "contents": [
         {
