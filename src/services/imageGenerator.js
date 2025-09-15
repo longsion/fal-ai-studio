@@ -128,10 +128,18 @@ class ImageGenerator {
 
       console.log('Fal.ai response:', result);
 
-      if (result && result.images && result.images.length > 0) {
+      // 检查不同可能的响应结构
+      let images = null;
+      if (result && result.data && result.data.images && result.data.images.length > 0) {
+        images = result.data.images;
+      } else if (result && result.images && result.images.length > 0) {
+        images = result.images;
+      }
+      
+      if (images && images.length > 0) {
         return {
           success: true,
-          images: result.images.map(img => ({
+          images: images.map(img => ({
             url: img.url,
             width: img.width || null,
             height: img.height || null
@@ -141,6 +149,7 @@ class ImageGenerator {
           parameters: parameters
         };
       } else {
+        console.log('Full API response:', JSON.stringify(result, null, 2));
         throw new Error('No images returned from API');
       }
     } catch (error) {

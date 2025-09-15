@@ -460,7 +460,22 @@ class ImageGeneratorApp {
         } catch (error) {
             this.hideLoading();
             console.error('Generation error:', error);
-            this.addMessage('system', '图像生成失败: ' + error.message);
+            
+            // 更友好的错误提示
+            let errorMessage = '生成失败';
+            if (error.message.includes('API key')) {
+                errorMessage = '请检查 API Key 是否正确配置';
+            } else if (error.message.includes('No images returned')) {
+                errorMessage = '模型未能生成图像，请尝试调整提示词或更换模型';
+            } else if (error.message.includes('not found')) {
+                errorMessage = '所选模型暂时不可用，请尝试其他模型';
+            } else if (error.message.includes('quota') || error.message.includes('limit')) {
+                errorMessage = 'API 配额已用完，请稍后再试';
+            } else {
+                errorMessage = `生成失败: ${error.message}`;
+            }
+            
+            this.addMessage('system', errorMessage);
         } finally {
             generateBtn.disabled = false;
             generateBtn.textContent = '生成图像';
