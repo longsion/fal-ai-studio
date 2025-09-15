@@ -212,32 +212,47 @@ class ImageGeneratorApp {
             'fal-nano-banana': {
                 name: 'Fal.ai Nano Banana (默认)',
                 description: '快速生成，适合快速预览',
-                features: ['快速生成', '低成本', '适合预览']
+                features: ['快速生成', '低成本', '适合预览', '支持宽高比设置']
             },
-            'flux-pro-ultra': {
-                name: 'FLUX1.1 [pro] ultra',
-                description: '专业级图像质量，支持2K分辨率',
-                features: ['2K分辨率', '专业级质量', '高真实感']
+            'flux-schnell': {
+                name: 'FLUX.1 [schnell]',
+                description: '快速生成模型，速度优先',
+                features: ['极速生成', '良好质量', '适合批量生成']
             },
             'flux-dev': {
                 name: 'FLUX.1 [dev]',
                 description: '12B参数模型，高质量图像生成',
-                features: ['12B参数', '高质量', '商用许可']
+                features: ['12B参数', '高质量', '商用许可', '平衡速度与质量']
+            },
+            'flux-pro-ultra': {
+                name: 'FLUX1.1 [pro] ultra',
+                description: '专业级图像质量，支持2K分辨率',
+                features: ['2K分辨率', '专业级质量', '高真实感', '最新版本']
             },
             'recraft-v3': {
                 name: 'Recraft V3',
                 description: '支持长文本、矢量艺术和品牌风格',
-                features: ['长文本支持', '矢量艺术', '品牌风格', '排版优秀']
+                features: ['长文本支持', '矢量艺术', '品牌风格', '排版优秀', 'SOTA性能']
             },
             'ideogram-v2': {
                 name: 'Ideogram V2',
                 description: '优秀的排版处理和现实感输出',
-                features: ['优秀排版', '现实感强', '商业创作']
+                features: ['优秀排版', '现实感强', '商业创作', '海报设计']
             },
             'stable-diffusion-35': {
                 name: 'Stable Diffusion 3.5 Large',
                 description: '改进的图像质量和复杂提示理解',
-                features: ['复杂提示理解', '改进质量', '资源效率']
+                features: ['复杂提示理解', '改进质量', '资源效率', '多模态支持']
+            },
+            'bria-3-2': {
+                name: 'Bria 3.2',
+                description: '商业安全，文本渲染优秀',
+                features: ['商业安全', '许可数据训练', '文本渲染', '风险可控']
+            },
+            'imagen4-preview': {
+                name: 'Imagen 4 Preview',
+                description: 'Google最高质量图像生成模型',
+                features: ['Google出品', '最高质量', '前沿技术', '预览版本']
             }
         };
     }
