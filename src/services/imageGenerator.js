@@ -149,6 +149,9 @@ class ImageGenerator {
 
       // 针对不同模型使用不同的参数映射
       if (modelConfig.type === 'image-to-image') {
+        console.log('Backend - Image editing parameters:', parameters);
+        console.log('Backend - imageUrl from parameters:', parameters.imageUrl);
+        
         // 图片编辑模型参数
         input = {
           prompt: prompt,

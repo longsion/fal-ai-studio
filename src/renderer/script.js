@@ -469,6 +469,7 @@ class ImageGeneratorApp {
                 if (this.selectedImageUrl) {
                     parameters.imageUrl = this.selectedImageUrl;
                     console.log('Image editing mode - Selected image URL:', this.selectedImageUrl);
+                    console.log('Parameters object:', parameters);
                 } else {
                     console.error('Image editing mode but no image selected!');
                     this.showNotification('请先选择要编辑的图片', 'warning');
