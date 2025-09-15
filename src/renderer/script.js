@@ -11,6 +11,7 @@ class ImageGeneratorApp {
         this.sessions = [];
         this.currentSessionId = null;
         this.supportedModels = {};
+        this.isGenerating = false; // 防重复生成标志
         this.init();
     }
 
@@ -67,16 +68,20 @@ class ImageGeneratorApp {
         });
 
         // Generate button
-        document.getElementById('generate-btn').addEventListener('click', () => {
-            this.generateImage();
-        });
+        const generateBtn = document.getElementById('generate-btn');
+        generateBtn.removeEventListener('click', this.handleGenerateClick);
+        this.handleGenerateClick = () => this.generateImage();
+        generateBtn.addEventListener('click', this.handleGenerateClick);
 
         // Enter key in prompt input
-        document.getElementById('prompt-input').addEventListener('keydown', (e) => {
+        const promptInput = document.getElementById('prompt-input');
+        promptInput.removeEventListener('keydown', this.handleKeyDown);
+        this.handleKeyDown = (e) => {
             if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
                 this.generateImage();
             }
-        });
+        };
+        promptInput.addEventListener('keydown', this.handleKeyDown);
 
         // New session and history buttons
         document.getElementById('new-session-btn').addEventListener('click', () => {
@@ -365,6 +370,12 @@ class ImageGeneratorApp {
     }
 
     async generateImage() {
+        // 防重复生成
+        if (this.isGenerating) {
+            console.log('Already generating, skipping...');
+            return;
+        }
+
         const prompt = document.getElementById('prompt-input').value.trim();
         if (!prompt) {
             this.addMessage('system', '请输入图像描述');
@@ -379,6 +390,9 @@ class ImageGeneratorApp {
             this.showSettingsModal();
             return;
         }
+
+        // 设置生成中标志
+        this.isGenerating = true;
 
         // Add user message to chat
         this.addMessage('user', prompt);
@@ -435,6 +449,7 @@ class ImageGeneratorApp {
         } finally {
             generateBtn.disabled = false;
             generateBtn.textContent = '生成图像';
+            this.isGenerating = false; // 重置生成标志
         }
     }
 
@@ -520,13 +535,18 @@ class ImageGeneratorApp {
         // Create a modal to show full-size image
         const modal = document.createElement('div');
         modal.className = 'modal image-modal';
-        modal.style.display = 'block';
         modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
             background: rgba(0, 0, 0, 0.9);
             cursor: pointer;
+            z-index: 2000;
         `;
         
         const modalContent = document.createElement('div');
@@ -535,6 +555,7 @@ class ImageGeneratorApp {
             max-height: 95%;
             text-align: center;
             position: relative;
+            cursor: default;
         `;
         
         const img = document.createElement('img');
@@ -544,30 +565,38 @@ class ImageGeneratorApp {
             max-height: 95vh; 
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            cursor: default;
+            cursor: pointer;
         `;
-        
-        // 阻止图片点击事件冒泡
-        img.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
         
         modalContent.appendChild(img);
         modal.appendChild(modalContent);
         document.body.appendChild(modal);
         
         const closeModal = () => {
-            document.body.removeChild(modal);
+            if (document.body.contains(modal)) {
+                document.body.removeChild(modal);
+            }
+            document.removeEventListener('keydown', handleKeyDown);
         };
         
-        // 点击背景关闭
-        modal.addEventListener('click', closeModal);
+        // 点击背景或图片都可以关闭
+        modal.addEventListener('click', (e) => {
+            // 如果点击的是图片或者背景，都关闭
+            closeModal();
+        });
+        
+        // 阻止modalContent的点击事件冒泡（但允许图片点击）
+        modalContent.addEventListener('click', (e) => {
+            // 如果点击的是图片，关闭模态框
+            if (e.target === img) {
+                closeModal();
+            }
+        });
         
         // ESC 键关闭
         const handleKeyDown = (e) => {
             if (e.key === 'Escape') {
                 closeModal();
-                document.removeEventListener('keydown', handleKeyDown);
             }
         };
         document.addEventListener('keydown', handleKeyDown);
