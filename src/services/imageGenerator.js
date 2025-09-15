@@ -155,7 +155,7 @@ class ImageGenerator {
         // 图片编辑模型参数
         input = {
           prompt: prompt,
-          image: parameters.imageUrl, // 尝试使用image而不是image_url
+          image_urls: [parameters.imageUrl], // API要求的是image_urls数组
           guidance_scale: parameters.guidanceScale || 3.5,
           num_images: parameters.numImages || 1,
           safety_tolerance: parameters.safetyTolerance || "2",

@@ -146,6 +146,11 @@ class ImageGeneratorApp {
         document.getElementById('remove-image-btn').addEventListener('click', () => {
             this.removeSelectedImage();
         });
+
+        // Exit edit mode
+        document.getElementById('exit-edit-mode-btn').addEventListener('click', () => {
+            this.exitEditMode();
+        });
     }
 
     async loadSettings() {
@@ -1062,11 +1067,24 @@ class ImageGeneratorApp {
 
         this.selectedImageFile = file;
         
-        // 创建预览
+        // 创建预览并准备图片URL
         const reader = new FileReader();
-        reader.onload = (e) => {
-            this.selectedImageUrl = e.target.result;
-            this.showImagePreview(e.target.result);
+        reader.onload = async (e) => {
+            try {
+                // 对于本地文件，我们需要将其转换为Fal.ai API可以接受的格式
+                // 这里我们使用base64格式，但实际上Fal.ai可能需要公网可访问的URL
+                const base64Result = e.target.result;
+                this.selectedImageUrl = base64Result;
+                
+                console.log('Local image loaded as base64, size:', base64Result.length);
+                this.showImagePreview(base64Result);
+                
+                // 显示提示信息
+                this.showNotification('本地图片已选择，注意：某些API可能需要公网可访问的图片URL', 'info');
+            } catch (error) {
+                console.error('Failed to process local image:', error);
+                this.showNotification('处理本地图片失败', 'error');
+            }
         };
         reader.readAsDataURL(file);
     }
@@ -1114,12 +1132,39 @@ class ImageGeneratorApp {
         this.selectedImageFile = null;
     }
 
+    exitEditMode() {
+        // 切换回文生图模型
+        const modelSelect = document.getElementById('model-select');
+        modelSelect.value = 'nano-banana'; // 默认文生图模型
+        
+        // 触发模型变更
+        this.handleModelChange('nano-banana');
+        
+        // 清除选中的图片
+        this.removeSelectedImage();
+        
+        // 显示通知
+        this.showNotification('已退出编辑模式，切换到文生图模式', 'info');
+        
+        console.log('Exited edit mode');
+    }
+
     async uploadImageToCloudinary(file) {
-        // 这里使用一个简单的方法将图片转换为base64 URL
-        // 在实际应用中，您可能需要上传到云存储服务
-        return new Promise((resolve) => {
+        // 将本地图片文件转换为base64 URL
+        // 注意：对于Fal.ai API，需要确保图片是可访问的URL
+        return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target.result);
+            reader.onload = (e) => {
+                // 对于本地文件，我们需要创建一个临时的blob URL
+                // 或者转换为base64格式
+                const result = e.target.result;
+                console.log('Local image converted to base64, length:', result.length);
+                resolve(result);
+            };
+            reader.onerror = (error) => {
+                console.error('Failed to read file:', error);
+                reject(error);
+            };
             reader.readAsDataURL(file);
         });
     }

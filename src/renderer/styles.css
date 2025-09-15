@@ -416,17 +416,42 @@ kbd {
     background: rgba(0, 0, 0, 0.9);
 }
 
+/* Edit Mode Header */
+.edit-mode-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
 .edit-mode-label {
-    position: absolute;
-    top: 0.5rem;
-    left: 0.5rem;
-    background: rgba(106, 90, 205, 0.9);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
     font-weight: 500;
-    z-index: 10;
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+.exit-edit-mode-btn {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.exit-edit-mode-btn:hover {
+    background: #ff5252;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
 }
 
 .model-selector {
