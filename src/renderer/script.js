@@ -462,6 +462,9 @@ class ImageGeneratorApp {
         try {
             // 准备参数，如果是图片编辑模型则添加图片URL
             const parameters = { ...this.currentParameters };
+            console.log('Current model:', model, 'Model config:', modelConfig);
+            console.log('Current selectedImageUrl:', this.selectedImageUrl);
+            
             if (modelConfig && modelConfig.type === 'image-to-image') {
                 if (this.selectedImageUrl) {
                     parameters.imageUrl = this.selectedImageUrl;
@@ -493,6 +496,7 @@ class ImageGeneratorApp {
                 
                 // 自动选中最新生成的图片用于编辑
                 if (result.images && result.images.length > 0) {
+                    console.log('Generated images:', result.images);
                     this.autoSelectLatestImage(result.images[0].url);
                 }
                 
@@ -745,6 +749,20 @@ class ImageGeneratorApp {
         // 设置最新生成的图片为选中状态
         this.selectedImageUrl = imageUrl;
         console.log('Auto-selected latest image for editing:', imageUrl);
+        
+        // 自动切换到图片编辑模型
+        const modelSelect = document.getElementById('model-select');
+        const currentModel = modelSelect.value;
+        
+        // 如果当前不是编辑模型，则切换到编辑模型
+        if (!this.supportedModels[currentModel] || this.supportedModels[currentModel].type !== 'image-to-image') {
+            modelSelect.value = 'nano-banana-edit';
+            this.handleModelChange('nano-banana-edit');
+            console.log('Auto-switched to edit model: nano-banana-edit');
+        }
+        
+        // 显示图片预览
+        this.showImagePreview(imageUrl);
         
         // 显示通知
         this.showNotification('最新生成的图片已自动选中，可直接输入编辑指令', 'info');
