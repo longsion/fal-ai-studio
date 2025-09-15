@@ -562,15 +562,24 @@ class ImageGeneratorApp {
             const imageActions = document.createElement('div');
             imageActions.className = 'image-actions';
             
-            const openBtn = document.createElement('button');
-            openBtn.className = 'copy-image-btn';
-            openBtn.textContent = '📁 打开';
-            openBtn.addEventListener('click', (e) => {
+            const downloadBtn = document.createElement('button');
+            downloadBtn.className = 'copy-image-btn';
+            downloadBtn.textContent = '📥 下载';
+            downloadBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                this.openImageInFolder(image.url);
+                this.downloadImage(image.url);
+            });
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'edit-image-btn';
+            editBtn.textContent = '✏️ 修改';
+            editBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.selectImageForEdit(image.url);
             });
             
-            imageActions.appendChild(openBtn);
+            imageActions.appendChild(downloadBtn);
+            imageActions.appendChild(editBtn);
             
             // Add click to view full size
             img.addEventListener('click', () => {
@@ -671,7 +680,7 @@ class ImageGeneratorApp {
         document.getElementById('loading-overlay').style.display = 'none';
     }
 
-    async openImageInFolder(imageUrl) {
+    async downloadImage(imageUrl) {
         try {
             // 下载图片到本地
             const response = await fetch(imageUrl);
@@ -688,15 +697,10 @@ class ImageGeneratorApp {
             link.click();
             document.body.removeChild(link);
             
-            // 下载后自动打开图片
-            setTimeout(() => {
-                window.open(imageUrl, '_blank');
-            }, 500);
-            
             // 清理 URL 对象
             URL.revokeObjectURL(url);
             
-            this.addMessage('system', '图片已下载并打开');
+            this.addMessage('system', '图片已下载');
             
         } catch (error) {
             console.error('Download failed:', error);
@@ -709,6 +713,27 @@ class ImageGeneratorApp {
                 this.addMessage('system', '下载失败，请手动保存图片');
             }
         }
+    }
+
+    selectImageForEdit(imageUrl) {
+        // 选中图片用于编辑
+        this.selectedImageUrl = imageUrl;
+        
+        // 自动切换到图片编辑模型（默认使用 nano-banana-edit）
+        const modelSelect = document.getElementById('model-select');
+        modelSelect.value = 'nano-banana-edit';
+        
+        // 触发模型变更事件
+        this.handleModelChange('nano-banana-edit');
+        
+        // 显示选中的图片预览
+        this.showImagePreview(imageUrl);
+        
+        // 提示用户
+        this.addMessage('system', '图片已选中用于编辑，现在可以输入修改指令');
+        
+        // 聚焦到输入框
+        document.getElementById('prompt-input').focus();
     }
 
     showSessionsModal() {
@@ -933,13 +958,31 @@ class ImageGeneratorApp {
         previewContainer.style.display = 'block';
         uploadLabel.style.display = 'none';
         
-        this.addMessage('system', '图片已选择，现在可以输入编辑指令');
+        // 添加编辑状态标识
+        let editLabel = previewContainer.querySelector('.edit-mode-label');
+        if (!editLabel) {
+            editLabel = document.createElement('div');
+            editLabel.className = 'edit-mode-label';
+            editLabel.textContent = '✏️ 编辑模式';
+            previewContainer.appendChild(editLabel);
+        }
+        
+        // 如果没有显示系统消息，则显示提示
+        if (!this.addMessage) {
+            console.log('图片已选择，现在可以输入编辑指令');
+        }
     }
 
     removeSelectedImage() {
         const previewContainer = document.getElementById('selected-image-preview');
         const uploadLabel = document.querySelector('.image-upload-label');
         const imageInput = document.getElementById('image-input');
+        
+        // 移除编辑模式标签
+        const editLabel = previewContainer.querySelector('.edit-mode-label');
+        if (editLabel) {
+            editLabel.remove();
+        }
         
         previewContainer.style.display = 'none';
         uploadLabel.style.display = 'flex';

@@ -261,6 +261,23 @@ kbd {
     background: rgba(0, 0, 0, 0.9);
 }
 
+.edit-image-btn {
+    background: rgba(106, 90, 205, 0.8);
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.2s ease;
+    white-space: nowrap;
+    margin-left: 4px;
+}
+
+.edit-image-btn:hover {
+    background: rgba(106, 90, 205, 1);
+}
+
 /* Input Container */
 .input-container {
     padding: 1.5rem 2rem;
@@ -355,6 +372,19 @@ kbd {
 
 .remove-image-btn:hover {
     background: rgba(0, 0, 0, 0.9);
+}
+
+.edit-mode-label {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: rgba(106, 90, 205, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 10;
 }
 
 .model-selector {
