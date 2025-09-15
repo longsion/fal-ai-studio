@@ -23,19 +23,19 @@ class ImageGenerator {
       },
       'recraft-v3': {
         name: 'Recraft V3',
-        endpoint: 'https://fal.run/fal-ai/recraft-v3',
+        endpoint: 'https://fal.run/fal-ai/recraft-v3/text-to-image',
         provider: 'fal',
         description: '支持长文本、矢量艺术和品牌风格'
       },
       'ideogram-v2': {
         name: 'Ideogram V2',
-        endpoint: 'https://fal.run/fal-ai/ideogram-v2',
+        endpoint: 'https://fal.run/fal-ai/ideogram-v2/text-to-image',
         provider: 'fal',
         description: '优秀的排版处理和现实感输出'
       },
       'stable-diffusion-35': {
         name: 'Stable Diffusion 3.5 Large',
-        endpoint: 'https://fal.run/fal-ai/stable-diffusion-v3-5-large',
+        endpoint: 'https://fal.run/fal-ai/stable-diffusion-v3-5-large/text-to-image',
         provider: 'fal',
         description: '改进的图像质量和复杂提示理解'
       }

@@ -117,6 +117,11 @@ class ImageGeneratorApp {
         document.getElementById('num-images').addEventListener('input', (e) => {
             document.getElementById('num-images-value').textContent = e.target.value;
         });
+
+        // Global keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            this.handleGlobalShortcuts(e);
+        });
     }
 
     async loadSettings() {
@@ -313,6 +318,17 @@ class ImageGeneratorApp {
                     <li>调整生成参数</li>
                     <li>选择不同的AI模型</li>
                 </ul>
+                <div class="shortcuts-info">
+                    <h4>⌨️ 快捷键：</h4>
+                    <div class="shortcuts-grid">
+                        <span><kbd>Ctrl/Cmd + Enter</kbd> 生成图像</span>
+                        <span><kbd>Ctrl/Cmd + N</kbd> 新对话</span>
+                        <span><kbd>Ctrl/Cmd + H</kbd> 历史会话</span>
+                        <span><kbd>Ctrl/Cmd + ,</kbd> 设置</span>
+                        <span><kbd>Ctrl/Cmd + P</kbd> 参数</span>
+                        <span><kbd>Esc</kbd> 关闭弹窗</span>
+                    </div>
+                </div>
             </div>
         `;
         this.conversationHistory = [];
@@ -561,17 +577,38 @@ class ImageGeneratorApp {
 
     async copyImageToClipboard(imageUrl) {
         try {
-            const response = await fetch(imageUrl);
-            const blob = await response.blob();
-            await navigator.clipboard.write([
-                new ClipboardItem({
-                    [blob.type]: blob
-                })
-            ]);
-            this.addMessage('system', '图片已复制到剪贴板');
+            // 方法1：尝试使用 Clipboard API
+            if (navigator.clipboard && navigator.clipboard.write) {
+                const response = await fetch(imageUrl);
+                const blob = await response.blob();
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        [blob.type]: blob
+                    })
+                ]);
+                this.addMessage('system', '图片已复制到剪贴板');
+                return;
+            }
+            
+            // 方法2：创建临时链接下载
+            const link = document.createElement('a');
+            link.href = imageUrl;
+            link.download = `generated-image-${Date.now()}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            this.addMessage('system', '图片已开始下载');
+            
         } catch (error) {
             console.error('Copy failed:', error);
-            this.addMessage('system', '复制失败，请手动保存图片');
+            
+            // 方法3：备用方案 - 在新窗口打开图片
+            try {
+                window.open(imageUrl, '_blank');
+                this.addMessage('system', '已在新窗口打开图片，请右键保存');
+            } catch (fallbackError) {
+                this.addMessage('system', '复制失败，请手动保存图片');
+            }
         }
     }
 
@@ -665,6 +702,76 @@ class ImageGeneratorApp {
 
     hideModelInfoModal() {
         document.getElementById('model-info-modal').style.display = 'none';
+    }
+
+    handleGlobalShortcuts(e) {
+        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+        const ctrlKey = isMac ? e.metaKey : e.ctrlKey;
+        
+        // Escape key - close any open modal
+        if (e.key === 'Escape') {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (modal.style.display === 'block') {
+                    modal.style.display = 'none';
+                }
+            });
+            return;
+        }
+
+        // Only handle shortcuts with Ctrl/Cmd
+        if (!ctrlKey) return;
+
+        switch (e.key.toLowerCase()) {
+            case 'enter':
+                // Ctrl/Cmd + Enter - Generate image (only if not in modal)
+                if (!this.isAnyModalOpen()) {
+                    e.preventDefault();
+                    this.generateImage();
+                }
+                break;
+                
+            case 'n':
+                // Ctrl/Cmd + N - New session
+                e.preventDefault();
+                this.createNewSession();
+                break;
+                
+            case 'h':
+                // Ctrl/Cmd + H - Show history
+                e.preventDefault();
+                this.showSessionsModal();
+                break;
+                
+            case ',':
+                // Ctrl/Cmd + , - Settings
+                e.preventDefault();
+                this.showSettingsModal();
+                break;
+                
+            case 'p':
+                // Ctrl/Cmd + P - Parameters
+                e.preventDefault();
+                this.showParametersModal();
+                break;
+                
+            case 'i':
+                // Ctrl/Cmd + I - Model info
+                e.preventDefault();
+                this.showModelInfoModal();
+                break;
+                
+            case 'b':
+                // Ctrl/Cmd + B - Back to welcome
+                e.preventDefault();
+                this.showWelcomeMessage();
+                break;
+        }
+    }
+
+    isAnyModalOpen() {
+        const modals = document.querySelectorAll('.modal');
+        return Array.from(modals).some(modal => modal.style.display === 'block');
     }
 }
 
