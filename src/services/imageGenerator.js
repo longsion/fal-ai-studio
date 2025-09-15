@@ -155,7 +155,7 @@ class ImageGenerator {
         // 图片编辑模型参数
         input = {
           prompt: prompt,
-          image_url: parameters.imageUrl, // 必需的图片URL
+          image: parameters.imageUrl, // 尝试使用image而不是image_url
           guidance_scale: parameters.guidanceScale || 3.5,
           num_images: parameters.numImages || 1,
           safety_tolerance: parameters.safetyTolerance || "2",
@@ -224,16 +224,17 @@ class ImageGenerator {
         console.log('Full API response:', JSON.stringify(result, null, 2));
         throw new Error('No images returned from API');
       }
-    } catch (error) {
-      console.error('Fal.ai API error:', error);
-      
-      if (error.body) {
-        const errorMsg = error.body?.detail || error.body?.message || 'API request failed';
-        throw new Error(`Fal.ai API error: ${errorMsg}`);
-      } else {
-        throw new Error(`Fal.ai error: ${error.message}`);
-      }
-    }
+        } catch (error) {
+            console.error('Fal.ai API error:', error);
+            
+            if (error.body) {
+                console.error('Error body detail:', error.body.detail);
+                const errorMsg = error.body?.detail || error.body?.message || 'API request failed';
+                throw new Error(`Fal.ai API error: ${JSON.stringify(errorMsg)}`);
+            } else {
+                throw new Error(`Fal.ai error: ${error.message}`);
+            }
+        }
   }
 
   // 映射图像尺寸到宽高比（用于 nano-banana 模型）
