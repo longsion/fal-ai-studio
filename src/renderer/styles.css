@@ -111,6 +111,7 @@ body {
     gap: 1rem;
     scroll-behavior: smooth;
     min-height: 0; /* 允许flex子元素正确收缩 */
+    max-height: calc(100vh - 200px); /* 确保不会超出视口高度，为输入框留出空间 */
 }
 
 .welcome-message {
@@ -230,6 +231,8 @@ kbd {
     width: 100%;
     height: auto;
     display: block;
+    max-height: 400px; /* 限制图片最大高度，避免挤压输入框 */
+    object-fit: contain; /* 保持图片比例 */
 }
 
 .image-actions {
@@ -263,6 +266,10 @@ kbd {
     padding: 1.5rem 2rem;
     background: rgba(255, 255, 255, 0.8);
     border-top: 1px solid rgba(0, 0, 0, 0.1);
+    flex-shrink: 0; /* 确保输入容器不会被压缩 */
+    position: sticky; /* 保持在底部 */
+    bottom: 0;
+    z-index: 10; /* 确保在其他内容之上 */
 }
 
 .model-selector {

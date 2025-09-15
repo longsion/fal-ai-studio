@@ -73,12 +73,13 @@ class ImageGeneratorApp {
         this.handleGenerateClick = () => this.generateImage();
         generateBtn.addEventListener('click', this.handleGenerateClick);
 
-        // Enter key in prompt input
+        // Enter key in prompt input - 只处理普通 Enter，Ctrl/Cmd+Enter 由全局快捷键处理
         const promptInput = document.getElementById('prompt-input');
         promptInput.removeEventListener('keydown', this.handleKeyDown);
         this.handleKeyDown = (e) => {
-            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-                this.generateImage();
+            if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey) {
+                // 普通 Enter 键，可以用于换行或其他功能
+                // 这里暂时不做任何操作，保持原有行为
             }
         };
         promptInput.addEventListener('keydown', this.handleKeyDown);
@@ -499,7 +500,7 @@ class ImageGeneratorApp {
         messagesContainer.appendChild(messageDiv);
         
         if (shouldScroll) {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            this.scrollToBottom();
         }
         
         this.updateBackButton();
@@ -555,7 +556,7 @@ class ImageGeneratorApp {
         messagesContainer.appendChild(messageDiv);
         
         if (shouldScroll) {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            this.scrollToBottom();
         }
         
         this.updateBackButton();
@@ -787,8 +788,8 @@ class ImageGeneratorApp {
 
         switch (e.key.toLowerCase()) {
             case 'enter':
-                // Ctrl/Cmd + Enter - Generate image (only if not in modal)
-                if (!this.isAnyModalOpen()) {
+                // Ctrl/Cmd + Enter - Generate image (only if not in modal and not already generating)
+                if (!this.isAnyModalOpen() && !this.isGenerating) {
                     e.preventDefault();
                     this.generateImage();
                 }
@@ -835,6 +836,14 @@ class ImageGeneratorApp {
     isAnyModalOpen() {
         const modals = document.querySelectorAll('.modal');
         return Array.from(modals).some(modal => modal.style.display === 'block');
+    }
+
+    scrollToBottom() {
+        const messagesContainer = document.getElementById('chat-messages');
+        // 使用 requestAnimationFrame 确保在 DOM 更新后执行滚动
+        requestAnimationFrame(() => {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        });
     }
 }
 
