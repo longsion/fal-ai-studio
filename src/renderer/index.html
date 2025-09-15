@@ -51,21 +51,47 @@
                 
                 <!-- Input Area -->
                 <div class="input-container">
-                    <div class="model-selector">
-                        <label for="model-select">模型:</label>
-                        <select id="model-select">
-                            <option value="fal-nano-banana">Fal.ai Nano Banana (默认)</option>
-                            <option value="flux-schnell">FLUX.1 [schnell] - 快速生成</option>
-                            <option value="flux-dev">FLUX.1 [dev] - 12B参数高质量</option>
-                            <option value="flux-pro-ultra">FLUX1.1 [pro] ultra - 专业级2K质量</option>
-                            <option value="recraft-v3">Recraft V3 - 长文本/矢量艺术</option>
-                            <option value="ideogram-v2">Ideogram V2 - 优秀排版</option>
-                            <option value="stable-diffusion-35">Stable Diffusion 3.5 - 复杂提示</option>
-                            <option value="bria-3-2">Bria 3.2 - 商业安全</option>
-                            <option value="imagen4-preview">Imagen 4 Preview - Google最高质量</option>
-                        </select>
-                        <button id="model-info-btn" class="model-info-btn">ℹ️</button>
+            <div class="model-selector">
+                <label for="model-select">模型:</label>
+                <select id="model-select">
+                    <optgroup label="文生图模型">
+                        <option value="fal-nano-banana">Fal.ai Nano Banana (默认)</option>
+                        <option value="flux-schnell">FLUX.1 [schnell] - 快速生成</option>
+                        <option value="flux-dev">FLUX.1 [dev] - 12B参数高质量</option>
+                        <option value="flux-pro-ultra">FLUX1.1 [pro] ultra - 专业级2K质量</option>
+                        <option value="recraft-v3">Recraft V3 - 长文本/矢量艺术</option>
+                        <option value="ideogram-v2">Ideogram V2 - 优秀排版</option>
+                        <option value="stable-diffusion-35">Stable Diffusion 3.5 - 复杂提示</option>
+                        <option value="bria-3-2">Bria 3.2 - 商业安全</option>
+                        <option value="imagen4-preview">Imagen 4 Preview - Google最高质量</option>
+                    </optgroup>
+                    <optgroup label="图片编辑模型">
+                        <option value="nano-banana-edit">Nano Banana Edit - 图片编辑</option>
+                        <option value="seedream-edit">Seedream 4.0 Edit - 最新编辑</option>
+                        <option value="qwen-image-edit">Qwen Image Edit - 文字编辑</option>
+                        <option value="ideogram-character-edit">Ideogram Character Edit - 角色编辑</option>
+                        <option value="seededit-v3">SeedEdit 3.0 - 真实图像</option>
+                        <option value="ideogram-v3-edit">Ideogram V3 Edit - 高保真</option>
+                    </optgroup>
+                </select>
+                <button id="model-info-btn" class="model-info-btn">ℹ️</button>
+            </div>
+
+            <!-- 图片选择区域 -->
+            <div id="image-upload-section" class="image-upload-section" style="display: none;">
+                <div class="image-upload-container">
+                    <label for="image-input" class="image-upload-label">
+                        <span class="upload-icon">📷</span>
+                        <span class="upload-text">选择要编辑的图片</span>
+                        <span class="upload-hint">支持 JPG, PNG, GIF 格式</span>
+                    </label>
+                    <input type="file" id="image-input" accept="image/*" style="display: none;">
+                    <div id="selected-image-preview" class="selected-image-preview" style="display: none;">
+                        <img id="preview-img" src="" alt="Selected image">
+                        <button id="remove-image-btn" class="remove-image-btn">×</button>
                     </div>
+                </div>
+            </div>
                     
                     <div class="input-row">
                         <textarea id="prompt-input" placeholder="描述您想要生成的图像..." rows="3"></textarea>

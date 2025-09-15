@@ -12,6 +12,8 @@ class ImageGeneratorApp {
         this.currentSessionId = null;
         this.supportedModels = {};
         this.isGenerating = false; // 防重复生成标志
+        this.selectedImageUrl = null; // 选中的图片URL
+        this.selectedImageFile = null; // 选中的图片文件
         this.init();
     }
 
@@ -127,6 +129,21 @@ class ImageGeneratorApp {
         // Global keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             this.handleGlobalShortcuts(e);
+        });
+
+        // Model selection change
+        document.getElementById('model-select').addEventListener('change', (e) => {
+            this.handleModelChange(e.target.value);
+        });
+
+        // Image upload handling
+        document.getElementById('image-input').addEventListener('change', (e) => {
+            this.handleImageSelect(e);
+        });
+
+        // Remove selected image
+        document.getElementById('remove-image-btn').addEventListener('click', () => {
+            this.removeSelectedImage();
         });
     }
 
@@ -407,6 +424,13 @@ class ImageGeneratorApp {
             return;
         }
 
+        // 检查是否为图片编辑模型且需要选择图片
+        const modelConfig = this.supportedModels[model];
+        if (modelConfig && modelConfig.type === 'image-to-image' && !this.selectedImageUrl) {
+            this.addMessage('system', '请先选择要编辑的图片');
+            return;
+        }
+
         // 设置生成中标志
         this.isGenerating = true;
 
@@ -435,11 +459,17 @@ class ImageGeneratorApp {
         generateBtn.textContent = '生成中...';
 
         try {
+            // 准备参数，如果是图片编辑模型则添加图片URL
+            const parameters = { ...this.currentParameters };
+            if (modelConfig && modelConfig.type === 'image-to-image' && this.selectedImageUrl) {
+                parameters.imageUrl = this.selectedImageUrl;
+            }
+
             const result = await window.electronAPI.generateImage({
                 model: model,
                 prompt: prompt,
                 apiKey: apiKey,
-                parameters: this.currentParameters
+                parameters: parameters
             });
 
             this.hideLoading();
@@ -658,10 +688,15 @@ class ImageGeneratorApp {
             link.click();
             document.body.removeChild(link);
             
+            // 下载后自动打开图片
+            setTimeout(() => {
+                window.open(imageUrl, '_blank');
+            }, 500);
+            
             // 清理 URL 对象
             URL.revokeObjectURL(url);
             
-            this.addMessage('system', '图片已下载到本地');
+            this.addMessage('system', '图片已下载并打开');
             
         } catch (error) {
             console.error('Download failed:', error);
@@ -843,6 +878,84 @@ class ImageGeneratorApp {
         // 使用 requestAnimationFrame 确保在 DOM 更新后执行滚动
         requestAnimationFrame(() => {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        });
+    }
+
+    handleModelChange(modelKey) {
+        const modelConfig = this.supportedModels[modelKey];
+        if (!modelConfig) return;
+
+        const imageUploadSection = document.getElementById('image-upload-section');
+        
+        if (modelConfig.type === 'image-to-image') {
+            // 显示图片上传区域
+            imageUploadSection.style.display = 'block';
+        } else {
+            // 隐藏图片上传区域，并清除选中的图片
+            imageUploadSection.style.display = 'none';
+            this.removeSelectedImage();
+        }
+    }
+
+    handleImageSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // 检查文件类型
+        if (!file.type.startsWith('image/')) {
+            this.addMessage('system', '请选择有效的图片文件');
+            return;
+        }
+
+        // 检查文件大小（限制为10MB）
+        if (file.size > 10 * 1024 * 1024) {
+            this.addMessage('system', '图片文件过大，请选择小于10MB的图片');
+            return;
+        }
+
+        this.selectedImageFile = file;
+        
+        // 创建预览
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            this.selectedImageUrl = e.target.result;
+            this.showImagePreview(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    showImagePreview(imageUrl) {
+        const previewContainer = document.getElementById('selected-image-preview');
+        const previewImg = document.getElementById('preview-img');
+        const uploadLabel = document.querySelector('.image-upload-label');
+        
+        previewImg.src = imageUrl;
+        previewContainer.style.display = 'block';
+        uploadLabel.style.display = 'none';
+        
+        this.addMessage('system', '图片已选择，现在可以输入编辑指令');
+    }
+
+    removeSelectedImage() {
+        const previewContainer = document.getElementById('selected-image-preview');
+        const uploadLabel = document.querySelector('.image-upload-label');
+        const imageInput = document.getElementById('image-input');
+        
+        previewContainer.style.display = 'none';
+        uploadLabel.style.display = 'flex';
+        imageInput.value = '';
+        
+        this.selectedImageUrl = null;
+        this.selectedImageFile = null;
+    }
+
+    async uploadImageToCloudinary(file) {
+        // 这里使用一个简单的方法将图片转换为base64 URL
+        // 在实际应用中，您可能需要上传到云存储服务
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(file);
         });
     }
 }
