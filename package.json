@@ -1,7 +1,7 @@
 {
-  "name": "ai-image-generator",
+  "name": "fal-ai-studio",
   "version": "1.0.0",
-  "description": "AI Image Generation Application with Multiple Model Support",
+  "description": "Professional AI Image Generation Studio with Fal.ai Integration - Text-to-Image & Image-to-Image Editing",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
