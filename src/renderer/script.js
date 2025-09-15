@@ -22,6 +22,7 @@ class ImageGeneratorApp {
         await this.loadSettings();
         this.loadSessions();
         this.loadSupportedModels();
+        this.setDefaultModel(); // 设置默认模型为Nano Banana
         this.updateParameterDisplays();
         this.createNewSession();
         this.initResizer();
@@ -311,6 +312,17 @@ class ImageGeneratorApp {
                 type: 'image-to-image'
             }
         };
+    }
+
+    setDefaultModel() {
+        // 设置默认模型为Fal.ai Nano Banana
+        const modelSelect = document.getElementById('model-select');
+        if (modelSelect) {
+            modelSelect.value = 'fal-nano-banana'; // 使用正确的模型ID
+            // 触发模型变更事件，确保UI正确初始化
+            this.handleModelChange('fal-nano-banana');
+            console.log('Default model set to fal-nano-banana');
+        }
     }
 
     loadSessions() {
@@ -1133,20 +1145,20 @@ class ImageGeneratorApp {
     }
 
     exitEditMode() {
-        // 切换回文生图模型
+        // 切换回默认的文生图模型 - Fal.ai Nano Banana
         const modelSelect = document.getElementById('model-select');
-        modelSelect.value = 'nano-banana'; // 默认文生图模型
+        modelSelect.value = 'fal-nano-banana'; // 设置为Fal.ai Nano Banana默认模型
         
-        // 触发模型变更
-        this.handleModelChange('nano-banana');
+        // 触发模型变更，确保UI正确更新
+        this.handleModelChange('fal-nano-banana');
         
         // 清除选中的图片
         this.removeSelectedImage();
         
         // 显示通知
-        this.showNotification('已退出编辑模式，切换到文生图模式', 'info');
+        this.showNotification('已退出编辑模式，切换到Nano Banana文生图模式', 'success');
         
-        console.log('Exited edit mode');
+        console.log('Exited edit mode - switched to fal-nano-banana default model');
     }
 
     async uploadImageToCloudinary(file) {
