@@ -462,8 +462,15 @@ class ImageGeneratorApp {
         try {
             // 准备参数，如果是图片编辑模型则添加图片URL
             const parameters = { ...this.currentParameters };
-            if (modelConfig && modelConfig.type === 'image-to-image' && this.selectedImageUrl) {
-                parameters.imageUrl = this.selectedImageUrl;
+            if (modelConfig && modelConfig.type === 'image-to-image') {
+                if (this.selectedImageUrl) {
+                    parameters.imageUrl = this.selectedImageUrl;
+                    console.log('Image editing mode - Selected image URL:', this.selectedImageUrl);
+                } else {
+                    console.error('Image editing mode but no image selected!');
+                    this.showNotification('请先选择要编辑的图片', 'warning');
+                    return;
+                }
             }
 
             const result = await window.electronAPI.generateImage({
@@ -737,6 +744,7 @@ class ImageGeneratorApp {
     autoSelectLatestImage(imageUrl) {
         // 设置最新生成的图片为选中状态
         this.selectedImageUrl = imageUrl;
+        console.log('Auto-selected latest image for editing:', imageUrl);
         
         // 显示通知
         this.showNotification('最新生成的图片已自动选中，可直接输入编辑指令', 'info');
@@ -780,6 +788,7 @@ class ImageGeneratorApp {
     selectImageForEdit(imageUrl) {
         // 选中图片用于编辑
         this.selectedImageUrl = imageUrl;
+        console.log('Selected image for editing:', imageUrl);
         
         // 自动切换到图片编辑模型（默认使用 nano-banana-edit）
         const modelSelect = document.getElementById('model-select');
