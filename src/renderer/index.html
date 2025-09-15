@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 图像生成器</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <h1>AI 图像生成器</h1>
+            <button id="settings-btn" class="settings-btn">⚙️ 设置</button>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Chat Area -->
+            <div class="chat-container">
+                <div id="chat-messages" class="chat-messages">
+                    <div class="welcome-message">
+                        <h3>欢迎使用 AI 图像生成器！</h3>
+                        <p>在下方输入您的图像描述，我将为您生成精美的图片。您可以：</p>
+                        <ul>
+                            <li>描述您想要的图像内容</li>
+                            <li>进行多轮对话来完善描述</li>
+                            <li>调整生成参数</li>
+                            <li>选择不同的AI模型</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Input Area -->
+                <div class="input-container">
+                    <div class="model-selector">
+                        <label for="model-select">模型:</label>
+                        <select id="model-select">
+                            <option value="fal-nano-banana">Fal.ai Nano Banana</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-row">
+                        <textarea id="prompt-input" placeholder="描述您想要生成的图像..." rows="3"></textarea>
+                        <div class="input-buttons">
+                            <button id="generate-btn" class="generate-btn">生成图像</button>
+                            <button id="parameters-btn" class="parameters-btn">参数</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>设置</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-group">
+                        <label for="fal-api-key">Fal.ai API Key:</label>
+                        <input type="password" id="fal-api-key" placeholder="输入您的 Fal.ai API Key">
+                        <small>获取API Key: <a href="https://fal.ai/dashboard" target="_blank">https://fal.ai/dashboard</a></small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="save-settings" class="save-btn">保存</button>
+                    <button id="cancel-settings" class="cancel-btn">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Parameters Modal -->
+        <div id="parameters-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>生成参数</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="parameter-group">
+                        <label for="image-size">图像尺寸:</label>
+                        <select id="image-size">
+                            <option value="square_hd">正方形 HD</option>
+                            <option value="square">正方形</option>
+                            <option value="portrait_4_3">竖版 4:3</option>
+                            <option value="portrait_16_9">竖版 16:9</option>
+                            <option value="landscape_4_3" selected>横版 4:3</option>
+                            <option value="landscape_16_9">横版 16:9</option>
+                        </select>
+                    </div>
+                    
+                    <div class="parameter-group">
+                        <label for="steps">推理步数:</label>
+                        <input type="range" id="steps" min="1" max="8" value="4" step="1">
+                        <span id="steps-value">4</span>
+                    </div>
+                    
+                    <div class="parameter-group">
+                        <label for="num-images">生成数量:</label>
+                        <input type="range" id="num-images" min="1" max="4" value="1" step="1">
+                        <span id="num-images-value">1</span>
+                    </div>
+                    
+                    <div class="parameter-group">
+                        <label>
+                            <input type="checkbox" id="safety-checker" checked>
+                            启用安全检查
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="apply-parameters" class="save-btn">应用</button>
+                    <button id="cancel-parameters" class="cancel-btn">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p>正在生成图像...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
