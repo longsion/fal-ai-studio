@@ -24,6 +24,7 @@ class ImageGeneratorApp {
         this.loadSupportedModels();
         this.updateParameterDisplays();
         this.createNewSession();
+        this.initResizer();
     }
 
     bindEvents() {
@@ -411,7 +412,7 @@ class ImageGeneratorApp {
 
         const prompt = document.getElementById('prompt-input').value.trim();
         if (!prompt) {
-            this.addMessage('system', '请输入图像描述');
+            this.showNotification('请输入图像描述', 'warning');
             return;
         }
 
@@ -419,7 +420,7 @@ class ImageGeneratorApp {
         const apiKey = await window.electronAPI.getConfig('falApiKey');
         
         if (!apiKey) {
-            this.addMessage('system', '请先在设置中配置 API Key');
+            this.showNotification('请先在设置中配置 API Key', 'warning');
             this.showSettingsModal();
             return;
         }
@@ -427,7 +428,7 @@ class ImageGeneratorApp {
         // 检查是否为图片编辑模型且需要选择图片
         const modelConfig = this.supportedModels[model];
         if (modelConfig && modelConfig.type === 'image-to-image' && !this.selectedImageUrl) {
-            this.addMessage('system', '请先选择要编辑的图片');
+            this.showNotification('请先选择要编辑的图片', 'warning');
             return;
         }
 
@@ -483,10 +484,15 @@ class ImageGeneratorApp {
                     timestamp: new Date()
                 });
                 
+                // 自动选中最新生成的图片用于编辑
+                if (result.images && result.images.length > 0) {
+                    this.autoSelectLatestImage(result.images[0].url);
+                }
+                
                 // Update current session
                 this.updateCurrentSession();
             } else {
-                this.addMessage('system', '图像生成失败: ' + (result.error || '未知错误'));
+                this.showNotification('图像生成失败: ' + (result.error || '未知错误'), 'error');
             }
         } catch (error) {
             this.hideLoading();
@@ -506,7 +512,7 @@ class ImageGeneratorApp {
                 errorMessage = `生成失败: ${error.message}`;
             }
             
-            this.addMessage('system', errorMessage);
+            this.showNotification(errorMessage, 'error');
         } finally {
             generateBtn.disabled = false;
             generateBtn.textContent = '生成图像';
@@ -680,6 +686,62 @@ class ImageGeneratorApp {
         document.getElementById('loading-overlay').style.display = 'none';
     }
 
+    showNotification(message, type = 'info') {
+        // 创建通知元素
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        
+        // 根据类型设置图标
+        let icon = '';
+        switch (type) {
+            case 'success':
+                icon = '✅';
+                break;
+            case 'warning':
+                icon = '⚠️';
+                break;
+            case 'error':
+                icon = '❌';
+                break;
+            default:
+                icon = 'ℹ️';
+        }
+        
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-icon">${icon}</span>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+            </div>
+        `;
+        
+        // 添加到页面
+        document.body.appendChild(notification);
+        
+        // 显示动画
+        setTimeout(() => notification.classList.add('show'), 100);
+        
+        // 自动移除（5秒后）
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 300);
+            }
+        }, 5000);
+    }
+
+    autoSelectLatestImage(imageUrl) {
+        // 设置最新生成的图片为选中状态
+        this.selectedImageUrl = imageUrl;
+        
+        // 显示通知
+        this.showNotification('最新生成的图片已自动选中，可直接输入编辑指令', 'info');
+    }
+
     async downloadImage(imageUrl) {
         try {
             // 下载图片到本地
@@ -700,7 +762,7 @@ class ImageGeneratorApp {
             // 清理 URL 对象
             URL.revokeObjectURL(url);
             
-            this.addMessage('system', '图片已下载');
+            this.showNotification('图片已下载', 'success');
             
         } catch (error) {
             console.error('Download failed:', error);
@@ -708,9 +770,9 @@ class ImageGeneratorApp {
             // 备用方案 - 在新窗口打开图片
             try {
                 window.open(imageUrl, '_blank');
-                this.addMessage('system', '已在新窗口打开图片，请右键保存');
+                this.showNotification('已在新窗口打开图片，请右键保存', 'info');
             } catch (fallbackError) {
-                this.addMessage('system', '下载失败，请手动保存图片');
+                this.showNotification('下载失败，请手动保存图片', 'error');
             }
         }
     }
@@ -730,7 +792,7 @@ class ImageGeneratorApp {
         this.showImagePreview(imageUrl);
         
         // 提示用户
-        this.addMessage('system', '图片已选中用于编辑，现在可以输入修改指令');
+        this.showNotification('图片已选中用于编辑，现在可以输入修改指令', 'success');
         
         // 聚焦到输入框
         document.getElementById('prompt-input').focus();
@@ -999,6 +1061,91 @@ class ImageGeneratorApp {
             const reader = new FileReader();
             reader.onload = (e) => resolve(e.target.result);
             reader.readAsDataURL(file);
+        });
+    }
+
+    initResizer() {
+        const resizer = document.getElementById('resizer');
+        const chatContainer = document.querySelector('.chat-container');
+        const inputContainer = document.querySelector('.input-container');
+        const mainContent = document.querySelector('.main-content');
+        
+        let isResizing = false;
+        let startY = 0;
+        let startChatHeight = 0;
+        let startInputHeight = 0;
+        
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            startY = e.clientY;
+            
+            // 获取当前高度
+            const chatRect = chatContainer.getBoundingClientRect();
+            const inputRect = inputContainer.getBoundingClientRect();
+            startChatHeight = chatRect.height;
+            startInputHeight = inputRect.height;
+            
+            // 添加拖拽样式
+            resizer.classList.add('dragging');
+            document.body.style.cursor = 'ns-resize';
+            document.body.style.userSelect = 'none';
+            
+            e.preventDefault();
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            
+            const deltaY = e.clientY - startY;
+            const mainRect = mainContent.getBoundingClientRect();
+            const totalHeight = mainRect.height - 22; // 减去分隔线高度
+            
+            // 计算新的高度
+            let newChatHeight = startChatHeight + deltaY;
+            let newInputHeight = startInputHeight - deltaY;
+            
+            // 限制最小和最大高度
+            const minChatHeight = 200;
+            const minInputHeight = 150;
+            const maxInputHeight = 400;
+            
+            if (newChatHeight < minChatHeight) {
+                newChatHeight = minChatHeight;
+                newInputHeight = totalHeight - newChatHeight;
+            } else if (newInputHeight < minInputHeight) {
+                newInputHeight = minInputHeight;
+                newChatHeight = totalHeight - newInputHeight;
+            } else if (newInputHeight > maxInputHeight) {
+                newInputHeight = maxInputHeight;
+                newChatHeight = totalHeight - newInputHeight;
+            }
+            
+            // 应用新的高度
+            chatContainer.style.height = `${newChatHeight}px`;
+            chatContainer.style.flex = 'none';
+            inputContainer.style.height = `${newInputHeight}px`;
+            inputContainer.style.flex = 'none';
+            
+            e.preventDefault();
+        });
+        
+        document.addEventListener('mouseup', () => {
+            if (!isResizing) return;
+            
+            isResizing = false;
+            resizer.classList.remove('dragging');
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        });
+        
+        // 双击重置布局
+        resizer.addEventListener('dblclick', () => {
+            chatContainer.style.height = '';
+            chatContainer.style.flex = '1';
+            inputContainer.style.height = '';
+            inputContainer.style.flex = 'none';
+            
+            this.showNotification('布局已重置', 'info');
         });
     }
 }

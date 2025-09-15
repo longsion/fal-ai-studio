@@ -85,15 +85,16 @@ body {
 .main-content {
     flex: 1;
     display: flex;
-    padding: 2rem;
-    gap: 2rem;
+    flex-direction: column;
+    height: calc(100vh - 80px);
+    overflow: hidden;
 }
 
-/* Chat Container */
 .chat-container {
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 200px;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 16px;
@@ -111,7 +112,6 @@ body {
     gap: 1rem;
     scroll-behavior: smooth;
     min-height: 0; /* 允许flex子元素正确收缩 */
-    max-height: calc(100vh - 200px); /* 确保不会超出视口高度，为输入框留出空间 */
 }
 
 .welcome-message {
@@ -281,12 +281,54 @@ kbd {
 /* Input Container */
 .input-container {
     padding: 1.5rem 2rem;
-    background: rgba(255, 255, 255, 0.8);
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
     flex-shrink: 0; /* 确保输入容器不会被压缩 */
-    position: sticky; /* 保持在底部 */
-    bottom: 0;
-    z-index: 10; /* 确保在其他内容之上 */
+    min-height: 150px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Resizable Divider */
+.resizer {
+    height: 6px;
+    background: transparent;
+    cursor: ns-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10;
+    margin: 8px 0;
+    transition: background 0.2s ease;
+}
+
+.resizer:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.resizer-line {
+    width: 60px;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+    transition: all 0.2s ease;
+}
+
+.resizer:hover .resizer-line {
+    background: rgba(0, 0, 0, 0.4);
+    width: 80px;
+}
+
+.resizer.dragging {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.resizer.dragging .resizer-line {
+    background: #6366f1;
+    width: 100px;
 }
 
 /* Image Upload Section */
@@ -801,4 +843,80 @@ kbd {
         margin: 10% auto;
         width: 95%;
     }
+}
+
+/* Notification System */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 300px;
+    max-width: 500px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1100;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.notification-content {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.notification-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.notification-message {
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s ease;
+}
+
+.notification-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.notification-success {
+    border-left: 4px solid #4CAF50;
+}
+
+.notification-warning {
+    border-left: 4px solid #FF9800;
+}
+
+.notification-error {
+    border-left: 4px solid #F44336;
+}
+
+.notification-info {
+    border-left: 4px solid #2196F3;
 }
