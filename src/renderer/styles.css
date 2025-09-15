@@ -109,7 +109,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    max-height: calc(100vh - 200px);
     scroll-behavior: smooth;
 }
 
@@ -251,6 +250,7 @@ kbd {
     cursor: pointer;
     font-size: 12px;
     transition: background 0.2s ease;
+    white-space: nowrap;
 }
 
 .copy-image-btn:hover {

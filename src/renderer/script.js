@@ -486,15 +486,15 @@ class ImageGeneratorApp {
             const imageActions = document.createElement('div');
             imageActions.className = 'image-actions';
             
-            const copyBtn = document.createElement('button');
-            copyBtn.className = 'copy-image-btn';
-            copyBtn.textContent = '📋 复制';
-            copyBtn.addEventListener('click', (e) => {
+            const openBtn = document.createElement('button');
+            openBtn.className = 'copy-image-btn';
+            openBtn.textContent = '📁 打开';
+            openBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                this.copyImageToClipboard(image.url);
+                this.openImageInFolder(image.url);
             });
             
-            imageActions.appendChild(copyBtn);
+            imageActions.appendChild(openBtn);
             
             // Add click to view full size
             img.addEventListener('click', () => {
@@ -519,39 +519,40 @@ class ImageGeneratorApp {
     showImageFullSize(imageUrl) {
         // Create a modal to show full-size image
         const modal = document.createElement('div');
-        modal.className = 'modal';
+        modal.className = 'modal image-modal';
         modal.style.display = 'block';
+        modal.style.cssText = `
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.9);
+            cursor: pointer;
+        `;
         
         const modalContent = document.createElement('div');
         modalContent.style.cssText = `
-            background: white;
-            margin: 2% auto;
-            padding: 1rem;
-            border-radius: 8px;
-            max-width: 90%;
-            max-height: 90%;
-            overflow: auto;
+            max-width: 95%;
+            max-height: 95%;
             text-align: center;
+            position: relative;
         `;
         
         const img = document.createElement('img');
         img.src = imageUrl;
-        img.style.cssText = 'max-width: 100%; max-height: 80vh; border-radius: 4px;';
-        
-        const closeBtn = document.createElement('button');
-        closeBtn.textContent = '关闭';
-        closeBtn.style.cssText = `
-            margin-top: 1rem;
-            padding: 0.5rem 1rem;
-            background: #6366f1;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+        img.style.cssText = `
+            max-width: 100%; 
+            max-height: 95vh; 
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            cursor: default;
         `;
         
+        // 阻止图片点击事件冒泡
+        img.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        
         modalContent.appendChild(img);
-        modalContent.appendChild(closeBtn);
         modal.appendChild(modalContent);
         document.body.appendChild(modal);
         
@@ -559,12 +560,17 @@ class ImageGeneratorApp {
             document.body.removeChild(modal);
         };
         
-        closeBtn.addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
+        // 点击背景关闭
+        modal.addEventListener('click', closeModal);
+        
+        // ESC 键关闭
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
                 closeModal();
+                document.removeEventListener('keydown', handleKeyDown);
             }
-        });
+        };
+        document.addEventListener('keydown', handleKeyDown);
     }
 
     showLoading() {
@@ -575,39 +581,37 @@ class ImageGeneratorApp {
         document.getElementById('loading-overlay').style.display = 'none';
     }
 
-    async copyImageToClipboard(imageUrl) {
+    async openImageInFolder(imageUrl) {
         try {
-            // 方法1：尝试使用 Clipboard API
-            if (navigator.clipboard && navigator.clipboard.write) {
-                const response = await fetch(imageUrl);
-                const blob = await response.blob();
-                await navigator.clipboard.write([
-                    new ClipboardItem({
-                        [blob.type]: blob
-                    })
-                ]);
-                this.addMessage('system', '图片已复制到剪贴板');
-                return;
-            }
+            // 下载图片到本地
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
             
-            // 方法2：创建临时链接下载
+            // 创建下载链接
             const link = document.createElement('a');
-            link.href = imageUrl;
+            const url = URL.createObjectURL(blob);
+            link.href = url;
             link.download = `generated-image-${Date.now()}.png`;
+            
+            // 触发下载
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            this.addMessage('system', '图片已开始下载');
+            
+            // 清理 URL 对象
+            URL.revokeObjectURL(url);
+            
+            this.addMessage('system', '图片已下载到本地');
             
         } catch (error) {
-            console.error('Copy failed:', error);
+            console.error('Download failed:', error);
             
-            // 方法3：备用方案 - 在新窗口打开图片
+            // 备用方案 - 在新窗口打开图片
             try {
                 window.open(imageUrl, '_blank');
                 this.addMessage('system', '已在新窗口打开图片，请右键保存');
             } catch (fallbackError) {
-                this.addMessage('system', '复制失败，请手动保存图片');
+                this.addMessage('system', '下载失败，请手动保存图片');
             }
         }
     }
