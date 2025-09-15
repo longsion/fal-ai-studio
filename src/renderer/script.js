@@ -227,51 +227,83 @@ class ImageGeneratorApp {
     }
 
     loadSupportedModels() {
+        // 与后端imageGenerator.js保持一致的模型配置
         this.supportedModels = {
             'fal-nano-banana': {
                 name: 'Fal.ai Nano Banana (默认)',
                 description: '快速生成，适合快速预览',
-                features: ['快速生成', '低成本', '适合预览', '支持宽高比设置']
+                type: 'text-to-image'
+            },
+            'nano-banana-edit': {
+                name: 'Nano Banana Edit (图片编辑)',
+                description: 'Google图片编辑模型，快速修改图片',
+                type: 'image-to-image'
             },
             'flux-schnell': {
                 name: 'FLUX.1 [schnell]',
                 description: '快速生成模型，速度优先',
-                features: ['极速生成', '良好质量', '适合批量生成']
+                type: 'text-to-image'
             },
             'flux-dev': {
                 name: 'FLUX.1 [dev]',
                 description: '12B参数模型，高质量图像生成',
-                features: ['12B参数', '高质量', '商用许可', '平衡速度与质量']
+                type: 'text-to-image'
             },
             'flux-pro-ultra': {
                 name: 'FLUX1.1 [pro] ultra',
                 description: '专业级图像质量，支持2K分辨率',
-                features: ['2K分辨率', '专业级质量', '高真实感', '最新版本']
+                type: 'text-to-image'
             },
             'recraft-v3': {
                 name: 'Recraft V3',
                 description: '支持长文本、矢量艺术和品牌风格',
-                features: ['长文本支持', '矢量艺术', '品牌风格', '排版优秀', 'SOTA性能']
+                type: 'text-to-image'
             },
             'ideogram-v2': {
                 name: 'Ideogram V2',
                 description: '优秀的排版处理和现实感输出',
-                features: ['优秀排版', '现实感强', '商业创作', '海报设计']
+                type: 'text-to-image'
             },
             'stable-diffusion-35': {
                 name: 'Stable Diffusion 3.5 Large',
                 description: '改进的图像质量和复杂提示理解',
-                features: ['复杂提示理解', '改进质量', '资源效率', '多模态支持']
+                type: 'text-to-image'
             },
             'bria-3-2': {
                 name: 'Bria 3.2',
                 description: '商业安全，文本渲染优秀',
-                features: ['商业安全', '许可数据训练', '文本渲染', '风险可控']
+                type: 'text-to-image'
             },
             'imagen4-preview': {
                 name: 'Imagen 4 Preview',
                 description: 'Google最高质量图像生成模型',
-                features: ['Google出品', '最高质量', '前沿技术', '预览版本']
+                type: 'text-to-image'
+            },
+            // 图片编辑模型
+            'seedream-edit': {
+                name: 'Seedream 4.0 Edit',
+                description: 'ByteDance最新图片编辑模型，集成生成和编辑功能',
+                type: 'image-to-image'
+            },
+            'qwen-image-edit': {
+                name: 'Qwen Image Edit',
+                description: 'Qwen图片编辑模型，优秀的文字编辑能力',
+                type: 'image-to-image'
+            },
+            'ideogram-character-edit': {
+                name: 'Ideogram Character Edit',
+                description: '修改角色形象，保持角色一致性',
+                type: 'image-to-image'
+            },
+            'seededit-v3': {
+                name: 'SeedEdit 3.0',
+                description: 'ByteDance图片编辑模型，擅长处理真实图像',
+                type: 'image-to-image'
+            },
+            'ideogram-v3-edit': {
+                name: 'Ideogram V3 Edit',
+                description: 'Ideogram V3编辑功能，高保真度图像修改',
+                type: 'image-to-image'
             }
         };
     }
